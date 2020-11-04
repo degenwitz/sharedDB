@@ -1,13 +1,12 @@
 package hello;
 
+import hello.threads.Abort;
 import hello.threads.Commit;
 import hello.threads.Prepare;
 import org.graalvm.compiler.core.CompilerThread;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -15,31 +14,36 @@ import java.util.*;
 @RestController
 public class Application {
 
-    @RequestMapping("/")
-    public String home() {
-        return "Hello Docker World";
-    }
-
-    @RequestMapping("/status")
-    public String status(@RequestBody String process){
+    @RequestMapping("/status/{process}")
+    public String status(@PathVariable("process") String process){
         return Admin.getStatus(process);
     }
 
-    @RequestMapping("/prepare")
-    public void prepare(@RequestBody String process){
+    @PostMapping("/process/{process}")
+    public void status(@PathVariable("process") String process, @RequestBody String content){
+        Admin.newProcess(process, content);
+    }
+
+    @PostMapping("/prepare/{process}")
+    public void prepare(@PathVariable("process") String process){
         Thread prepareThread = new Prepare(process);
         prepareThread.start();
         return;
     }
 
-    @RequestMapping("/commit")
-    public void commit(@RequestBody String status){
+    @PostMapping("/commit/{process}")
+    public void commit(@PathVariable("process") String status){
         Thread commitThread = new Commit(status);
         commitThread.start();
         return;
     }
 
-
+    @PostMapping("/abort/{process}")
+    public void abort(@PathVariable("process") String status){
+        Thread abortThread = new Abort(status);
+        abortThread.start();
+        return;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

@@ -7,7 +7,8 @@ public class Admin {
     private static Map<String, String> processStatus = new HashMap<>();
     private static List<String> nonVolMemory = new ArrayList<>();
     private static List<String> volMemory = new ArrayList<>();
-    private static Set<String> commitedProcesses = new HashSet<>();
+    private static Map<String,String> commitedProcesses = new HashMap<>();
+    private static Map<String,String> uncommitedProcess = new HashMap<>();
 
     public static void forceWrite(String status, String inhalt){
         nonVolMemory.add("$"+status + ":" + inhalt + "$");
@@ -29,15 +30,29 @@ public class Admin {
     }
 
     public static String getStatus(String process){
-        return processStatus.get(process);
+        if(processStatus.containsKey(process)){
+            return processStatus.get(process);
+        } else {
+            return "no process with this name";
+        }
     }
 
     public static void commit(String process){
-        commitedProcesses.add(process);
+        if(uncommitedProcess.containsKey(process)) {
+            commitedProcesses.put(process, uncommitedProcess.get(process));
+        }
     }
 
+    public static void abbort(String process) { return; }
+
     public static void forget(String process){
+        uncommitedProcess.remove(process);
+        processStatus.remove(process);
         return;
     }
 
+    public static void newProcess(String process, String value){
+        uncommitedProcess.put(process, value);
+        processStatus.put(process,"process has maid changes to DB");
+    }
 }
