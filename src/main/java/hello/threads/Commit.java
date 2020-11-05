@@ -14,6 +14,6 @@ public class Commit extends restThreads {
         Admin.forceWrite(process, "commit");
         Host.ack(process);
         Admin.commit(process);
-        Admin.forget(process);
+        //Admin.forget(process);
     }
 }

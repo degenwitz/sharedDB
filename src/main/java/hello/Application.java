@@ -39,10 +39,23 @@ public class Application {
     }
 
     @PostMapping("/abort/{process}")
-    public void abort(@PathVariable("process") String status){
-        Thread abortThread = new Abort(status);
+    public void abort(@PathVariable("process") String process){
+        Thread abortThread = new Abort(process);
         abortThread.start();
         return;
+    }
+
+    //just for testing
+    @PostMapping("/acktest/{process}")
+    public void ackTest(@PathVariable("process") String process){
+        Admin.changeStatus(process, "ackWorked");
+        return;
+    }
+
+    //just for testing
+    @PostMapping("/test/{process}")
+    public String ackTest2(@PathVariable("process") String process){
+        return Host.ack2(process);
     }
 
     public static void main(String[] args) {
