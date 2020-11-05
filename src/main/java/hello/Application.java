@@ -14,6 +14,16 @@ import java.util.*;
 @RestController
 public class Application {
 
+    @PostMapping("/client/setup")
+    public void setupClient(@RequestBody ClientInfo ci){
+        Host.setup(ci);
+    }
+
+    @RequestMapping("/client/setup")
+    public ClientInfo getCI(){
+        return Host.getCI();
+    }
+
     @RequestMapping("/status/{process}")
     public String status(@PathVariable("process") String process){
         return Admin.getStatus(process);
@@ -50,12 +60,6 @@ public class Application {
     public void ackTest(@PathVariable("process") String process){
         Admin.changeStatus(process, "ackWorked");
         return;
-    }
-
-    //just for testing
-    @PostMapping("/test/{process}")
-    public String ackTest2(@PathVariable("process") String process){
-        return Host.ack2(process);
     }
 
     public static void main(String[] args) {
