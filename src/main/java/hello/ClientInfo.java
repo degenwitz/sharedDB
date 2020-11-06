@@ -4,7 +4,7 @@ public class ClientInfo {
 
     private String hostPort = "8080";
 
-    private String adress = "http://172.17.0.1";
+    private String address = "http://172.17.0.1";
 
     private String myPort = "8090";
 
@@ -16,12 +16,12 @@ public class ClientInfo {
         this.hostPort = hostPort;
     }
 
-    public String getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdress(String adress) {
-        this.adress = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getMyPort() {

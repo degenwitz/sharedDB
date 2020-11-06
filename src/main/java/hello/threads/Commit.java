@@ -15,16 +15,16 @@ public class Commit extends restThreads {
     }
 
     public void run(){
-        if (!ServerStatus.serverAvaliable(tn, ProcessNames.CHANGESTATUS)) return;
+        if (!ServerStatus.serverAvailable(tn, ProcessNames.CHANGESTATUS)) return;
         Admin.changeStatus(process,"commit");
-        if (!ServerStatus.serverAvaliable(tn, ProcessNames.FORCEWRITE)) return;
+        if (!ServerStatus.serverAvailable(tn, ProcessNames.FORCEWRITE)) return;
         Admin.forceWrite(process, "commit");
-        if (!ServerStatus.serverAvaliable(tn, ProcessNames.ACK)) return;
+        if (!ServerStatus.serverAvailable(tn, ProcessNames.ACK)) return;
         Host.ack(process);
-        if (!ServerStatus.serverAvaliable(tn, ProcessNames.COMMIT)) return;
+        if (!ServerStatus.serverAvailable(tn, ProcessNames.COMMIT)) return;
         Admin.commit(process);
-        if (!ServerStatus.serverAvaliable(tn, ProcessNames.FORGET)) return;
+        if (!ServerStatus.serverAvailable(tn, ProcessNames.FORGET)) return;
         Admin.forget(process);
-        if (!ServerStatus.serverAvaliable(tn, ProcessNames.END)) return;
+        if (!ServerStatus.serverAvailable(tn, ProcessNames.END)) return;
     }
 }

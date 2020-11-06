@@ -18,7 +18,7 @@ public class Host {
     public static void yesVote(String process){
         RestTemplate restTemplate = new RestTemplate();
         String fooResourceUrl
-                = clientInfo.getAdress() +":"+ clientInfo.getHostPort()+"/yes_vote/" + process;
+                = clientInfo.getAddress() +":"+ clientInfo.getHostPort()+"/yes_vote/" + process;
         ResponseEntity<String> response
                 = restTemplate.postForEntity(fooResourceUrl + "/" + process, clientInfo.getMyPort(),  String.class);
     }

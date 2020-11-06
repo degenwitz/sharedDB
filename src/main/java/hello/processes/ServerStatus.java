@@ -14,7 +14,7 @@ public class ServerStatus {
         return serverDown;
     }
 
-    public static boolean serverAvaliable(ThreadName tn, ProcessNames pn){
+    public static boolean serverAvailable(ThreadName tn, ProcessNames pn){
         if( serverDown ){
             return false;
         }
