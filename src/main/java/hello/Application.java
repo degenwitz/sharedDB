@@ -1,5 +1,6 @@
 package hello;
 
+import hello.processes.ServerStatus;
 import hello.threads.Abort;
 import hello.threads.Commit;
 import hello.threads.Prepare;
@@ -26,12 +27,23 @@ public class Application {
 
     @RequestMapping("/status/{process}")
     public String status(@PathVariable("process") String process){
+        if(ServerStatus.isServerDown()){ return "server is down";}
         return Admin.getStatus(process);
     }
 
     @PostMapping("/process/{process}")
     public void status(@PathVariable("process") String process, @RequestBody String content){
         Admin.newProcess(process, content);
+    }
+
+    @PostMapping("/serverstatus/setstop")
+    public void serverStop(@RequestBody ServerStatus serverStatus){
+        ServerStatus.setup(serverStatus);
+    }
+
+    @PostMapping("/serverstatus/reset")
+    public void resetServer(){
+        ServerStatus.resetServer();
     }
 
     @PostMapping("/prepare/{process}")
