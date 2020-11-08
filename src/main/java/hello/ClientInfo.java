@@ -8,6 +8,8 @@ public class ClientInfo {
 
     private String myPort = "8090";
 
+    private boolean isCoordinator = false;
+
     public String getHostPort() {
         return hostPort;
     }
@@ -30,5 +32,11 @@ public class ClientInfo {
 
     public void setMyPort(String myPort) {
         this.myPort = myPort;
+    }
+
+    public boolean getIsCoordinator() {return isCoordinator;}
+
+    public void setIsCoordinator(boolean isCoordinator) {
+        this.isCoordinator = isCoordinator;
     }
 }

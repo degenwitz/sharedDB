@@ -1,5 +1,6 @@
 package hello;
 
+import hello.processes.ProcessNames;
 import hello.processes.ServerStatus;
 import hello.threads.Abort;
 import hello.threads.Commit;
@@ -66,12 +67,23 @@ public class Application {
 
     @PostMapping("/yes_vote/{process}")
     public void yesVote(@PathVariable("process") String process, @RequestBody String port) {
-        // TODO
+        if (HostCommunicator.getCI().getIsCoordinator()) {
+            Admin.registerVote(process, port, ProcessNames.YESVOTE);
+        }
     }
 
     @PostMapping("/no_vote/{process}")
-    public void noVote(@PathVariable("process") String process) {
-        // TODO
+    public void noVote(@PathVariable("process") String process, @RequestBody String port) {
+        if (HostCommunicator.getCI().getIsCoordinator()) {
+            Admin.registerVote(process, port, ProcessNames.NOVOTE);
+        }
+    }
+
+    @PostMapping("/ack/{process}")
+    public void ack(@PathVariable("process") String process, @RequestBody String port) {
+        if (HostCommunicator.getCI().getIsCoordinator()) {
+            Admin.ack(process, port);
+        }
     }
 
     //just for testing

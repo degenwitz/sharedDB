@@ -20,7 +20,7 @@ public class HostCommunicator {
         String fooResourceUrl
                 = clientInfo.getAddress() +":"+ clientInfo.getHostPort()+"/yes_vote/" + process;
         ResponseEntity<String> response
-                = restTemplate.postForEntity(fooResourceUrl + "/" + process, clientInfo.getMyPort(),  String.class);
+                = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
     }
 
     public static void noVote(String process){
@@ -28,7 +28,7 @@ public class HostCommunicator {
         String fooResourceUrl
                 = clientInfo.getAddress() +":"+ clientInfo.getHostPort()+"/no_vote/" + process;
         ResponseEntity<String> response
-                = restTemplate.postForEntity(fooResourceUrl + "/" + process, clientInfo.getMyPort(),  String.class);
+                = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
     }
 
     public static void ack(String process){
@@ -37,7 +37,7 @@ public class HostCommunicator {
                 = "http:/localhost:"+clientInfo.getHostPort()+"/ack/"+process;
         System.out.println(fooResourceUrl);
         ResponseEntity<String> response
-                = restTemplate.postForEntity(fooResourceUrl + "/" + process, clientInfo.getMyPort(),  String.class);
+                = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
         return;
     }
 }
