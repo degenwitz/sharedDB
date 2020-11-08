@@ -1,7 +1,7 @@
 package hello.threads;
 
 import hello.Admin;
-import hello.Host;
+import hello.HostCommunicator;
 import hello.processes.ProcessNames;
 import hello.processes.ServerStatus;
 import hello.processes.ThreadName;
@@ -20,7 +20,7 @@ public class Commit extends restThreads {
         if (!ServerStatus.serverAvailable(tn, ProcessNames.FORCEWRITE)) return;
         Admin.forceWrite(process, "commit");
         if (!ServerStatus.serverAvailable(tn, ProcessNames.ACK)) return;
-        Host.ack(process);
+        HostCommunicator.ack(process);
         if (!ServerStatus.serverAvailable(tn, ProcessNames.COMMIT)) return;
         Admin.commit(process);
         if (!ServerStatus.serverAvailable(tn, ProcessNames.FORGET)) return;

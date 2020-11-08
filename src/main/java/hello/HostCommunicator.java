@@ -3,7 +3,7 @@ package hello;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-public class Host {
+public class HostCommunicator {
 
     private static ClientInfo clientInfo;
 
@@ -19,6 +19,14 @@ public class Host {
         RestTemplate restTemplate = new RestTemplate();
         String fooResourceUrl
                 = clientInfo.getAddress() +":"+ clientInfo.getHostPort()+"/yes_vote/" + process;
+        ResponseEntity<String> response
+                = restTemplate.postForEntity(fooResourceUrl + "/" + process, clientInfo.getMyPort(),  String.class);
+    }
+
+    public static void noVote(String process){
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl
+                = clientInfo.getAddress() +":"+ clientInfo.getHostPort()+"/no_vote/" + process;
         ResponseEntity<String> response
                 = restTemplate.postForEntity(fooResourceUrl + "/" + process, clientInfo.getMyPort(),  String.class);
     }

@@ -1,7 +1,7 @@
 package hello.threads;
 
 import hello.Admin;
-import hello.Host;
+import hello.HostCommunicator;
 import hello.processes.ProcessNames;
 import hello.processes.ServerStatus;
 import hello.processes.ThreadName;
@@ -20,7 +20,7 @@ public class Prepare extends restThreads {
         if (!ServerStatus.serverAvailable(tn, ProcessNames.CHANGESTATUS)) return;
         Admin.changeStatus(process,"prepare");
         if (!ServerStatus.serverAvailable(tn, ProcessNames.YESVOTE)) return;
-        Host.yesVote(process);
+        HostCommunicator.yesVote(process);
         if (!ServerStatus.serverAvailable(tn, ProcessNames.END)) return;
     }
 }

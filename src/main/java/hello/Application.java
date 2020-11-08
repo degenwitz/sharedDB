@@ -4,12 +4,9 @@ import hello.processes.ServerStatus;
 import hello.threads.Abort;
 import hello.threads.Commit;
 import hello.threads.Prepare;
-import org.graalvm.compiler.core.CompilerThread;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
 
 @SpringBootApplication
 @RestController
@@ -17,12 +14,12 @@ public class Application {
 
     @PostMapping("/client/setup")
     public void setupClient(@RequestBody ClientInfo ci){
-        Host.setup(ci);
+        HostCommunicator.setup(ci);
     }
 
     @RequestMapping("/client/setup")
     public ClientInfo getCI(){
-        return Host.getCI();
+        return HostCommunicator.getCI();
     }
 
     @RequestMapping("/status/{process}")
@@ -65,6 +62,16 @@ public class Application {
         Thread abortThread = new Abort(process);
         abortThread.start();
         return;
+    }
+
+    @PostMapping("/yes_vote/{process}")
+    public void yesVote(@PathVariable("process") String process, @RequestBody String port) {
+        // TODO
+    }
+
+    @PostMapping("/no_vote/{process}")
+    public void noVote(@PathVariable("process") String process) {
+        // TODO
     }
 
     //just for testing
