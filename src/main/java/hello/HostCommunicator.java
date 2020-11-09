@@ -34,8 +34,7 @@ public class HostCommunicator {
     public static void ack(String process){
         RestTemplate restTemplate = new RestTemplate();
         String fooResourceUrl
-                = "http:/localhost:"+clientInfo.getHostPort()+"/ack/"+process;
-        System.out.println(fooResourceUrl);
+                = clientInfo.getAddress()+":"+clientInfo.getHostPort()+"/ack/"+process;
         ResponseEntity<String> response
                 = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
         return;

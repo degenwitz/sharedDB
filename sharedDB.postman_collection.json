@@ -1,0 +1,281 @@
+{
+	"info": {
+		"_postman_id": "b1aa8c1a-01ed-4f71-8b7a-f7046edd9e70",
+		"name": "sharedDB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "setup host on 8080",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"hostPort\": \"8080\",\n\t\"adress\": \"http://172.17.0.1\",\n\t\"myPort\": \"8080\",\n\t\"isCoordinator\": \"true\",\n\t\"subPorts\": [\"8081\",\"8082\"]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/client/setup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"client",
+						"setup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "commit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"threadToStopAt\":\"prepare\",\n    \"processToStopAt\":\"forcewrite\",\n    \"appearancesToStopAt\":\"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/commit/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"commit",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getStatus",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/status/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"status",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createprocess1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "Hans Peter"
+				},
+				"url": {
+					"raw": "http://localhost:8082/process/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"process",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get votes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"threadToStopAt\":\"prepare\",\n    \"processToStopAt\":\"forcewrite\",\n    \"appearancesToStopAt\":\"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/votes/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"votes",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "prepareAbort",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"threadToStopAt\":\"prepare\",\n    \"processToStopAt\":\"forcewrite\",\n    \"appearancesToStopAt\":\"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/process/1/abort",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"process",
+						"1",
+						"abort"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "crashserver",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"threadToStopAt\":\"prepare\",\n    \"processToStopAt\":\"forcewrite\",\n    \"appearancesToStopAt\":\"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/serverstatus/setstop",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"serverstatus",
+						"setstop"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "resetServer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"threadToStopAt\":\"prepare\",\n    \"processToStopAt\":\"forcewrite\",\n    \"appearancesToStopAt\":\"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/serverstatus/reset",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"serverstatus",
+						"reset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "nonVolMemory",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"threadToStopAt\":\"prepare\",\n    \"processToStopAt\":\"forcewrite\",\n    \"appearancesToStopAt\":\"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/memory/nonVol",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"memory",
+						"nonVol"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -14,13 +14,19 @@ public class Prepare extends restThreads {
         super(process);
     }
 
+    
     public void run(){
         if (!ServerStatus.serverAvailable(tn, ProcessNames.FORCEWRITE)) return;
         Admin.forceWrite(process, "prepare");
         if (!ServerStatus.serverAvailable(tn, ProcessNames.CHANGESTATUS)) return;
         Admin.changeStatus(process,"prepare");
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.YESVOTE)) return;
-        HostCommunicator.yesVote(process);
+        if(!Admin.getValue(process).equals("defective")){
+            if (!ServerStatus.serverAvailable(tn, ProcessNames.YESVOTE)) return;
+            HostCommunicator.yesVote(process);
+        } else {
+            if (!ServerStatus.serverAvailable(tn, ProcessNames.NOVOTE)) return;
+            HostCommunicator.noVote(process);
+        }
         if (!ServerStatus.serverAvailable(tn, ProcessNames.END)) return;
     }
 }

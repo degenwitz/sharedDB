@@ -9,12 +9,25 @@ import java.util.*;
 public class Admin {
 
     private static Map<String, String> processStatus = new HashMap<>();
+
+    public static List<String> getNonVolMemory() {
+        return nonVolMemory;
+    }
+
     private static List<String> nonVolMemory = new ArrayList<>();
     private static List<String> volMemory = new ArrayList<>();
     private static Map<String,String> committedProcesses = new HashMap<>();
     private static Map<String,String> uncommittedProcess = new HashMap<>();
 
     private static Map<String, Map<String, ProcessNames>> processSubordinates = new HashMap<>();
+
+    public static Map<String, Map<String, ProcessNames>> getProcessSubordinates() {  //{process,{port,yes_vote}}
+        return processSubordinates;
+    }
+    public static void resetProcessSubordinates(String process) {  //{process,{port,yes_vote}}
+        processSubordinates.put(process, new HashMap<>());
+        return;
+    }
 
     public static void forceWrite(String status, String content){
         nonVolMemory.add("$"+status + ":" + content + "$");
@@ -35,8 +48,16 @@ public class Admin {
         }
     }
 
+    public static void appendStatus(String process, String status){
+        changeStatus(process, getStatus(process) + " , " + status);
+    }
+
     public static String getStatus(String process){
         return processStatus.getOrDefault(process, "no process with this name");
+    }
+
+    public static String getValue(String process){
+        return uncommittedProcess.get(process);
     }
 
     public static void commit(String process){
@@ -65,34 +86,6 @@ public class Admin {
         Map<String, ProcessNames> map = processSubordinates.getOrDefault(process, null);
         if (map != null) {
             map.put(port, vote);
-
-            boolean readyToCommit = !map.containsValue(ProcessNames.NOVOTE);
-            // FIXME: which subordinates are part of process, so we can check if every subordinate has voted
-
-            Set<String> ports = map.keySet();
-            if (readyToCommit) {
-                Admin.forceWrite(process, "commit ".concat(Arrays.toString(ports.toArray())));
-                for (String p: ports) {
-                    RestTemplate restTemplate = new RestTemplate();
-                    String fooResourceUrl
-                            = HostCommunicator.getCI().getAddress() +":"+ p +"/commit/" + process;
-                    ResponseEntity<String> r = restTemplate.postForEntity(fooResourceUrl, null, String.class);
-                    map.put(p, ProcessNames.COMMIT);
-                }
-            }
-            else {
-                Admin.forceWrite(process, "abort");
-                for (String p: ports) {
-                    if (map.get(p) == ProcessNames.YESVOTE) {
-                        RestTemplate restTemplate = new RestTemplate();
-                        String fooResourceUrl
-                                = HostCommunicator.getCI().getAddress() +":"+ p +"/abort/" + process;
-                        ResponseEntity<String> r = restTemplate.postForEntity(fooResourceUrl, null, String.class);
-                        map.put(p, ProcessNames.ABORT);
-                    }
-                }
-
-            }
         }
     }
 
