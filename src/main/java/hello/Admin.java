@@ -4,6 +4,11 @@ import hello.processes.ProcessNames;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+
 import java.util.*;
 
 public class Admin {
@@ -11,6 +16,19 @@ public class Admin {
     private static Map<String, String> processStatus = new HashMap<>();
 
     public static List<String> getNonVolMemory() {
+        File f = new File("/logs/" + "log.txt");
+        nonVolMemory.clear();
+        try {
+            BufferedReader fileReader = new BufferedReader(new FileReader(f));
+            while (true) {
+                String line = fileReader.readLine();
+                if (line == null) break;
+                nonVolMemory.add(line);
+            }
+            fileReader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return nonVolMemory;
     }
 
@@ -30,7 +48,18 @@ public class Admin {
     }
 
     public static void forceWrite(String status, String content){
-        nonVolMemory.add("$"+status + ":" + content + "$");
+        // nonVolMemory.add("$"+status + ":" + content + "$");
+        // get address to make unique file name
+        // ClientInfo ci = HostCommunicator.getCI();
+        //String fn = "log-" + ci.getMyPort();
+        try {
+            File file = new File("/logs/log.txt");
+            FileWriter fw = new FileWriter(file, true);
+            fw.write("$"+status + ":" + content + "$\n");
+            fw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void normalWrite(String status, String content){

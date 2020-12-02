@@ -12,3 +12,5 @@ LATER:
 * PA
 * PC
 * case by case choice between PA / PC
+* !!! N: force write outside of docker containers ([website](https://docs.docker.com/storage/))
+    * docker volumes: managed by docker

@@ -10,6 +10,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -21,19 +28,17 @@ public class Application {
     public void prepare(@PathVariable("process") String process){
         Thread prepareThread = new Prepare(process);
         prepareThread.start();
-        return;
     }
 
     @PostMapping("/commit/{process}")
     public void commit(@PathVariable("process") String process){
-        if(HostCommunicator.getCI().getIsCoordinator()){
+        if (HostCommunicator.getCI().getIsCoordinator()){
             Thread commitThread = new HostCommit(process);
             commitThread.start();
         } else {
             Thread commitThread = new Commit(process);
             commitThread.start();
         }
-        return;
     }
 
     @PostMapping("/abort/{process}")
@@ -159,7 +164,10 @@ public class Application {
 
 
     public static void main(String[] args) {
-        RecoveryService.recover();
+        if (Files.exists(Paths.get("logs","log.txt"))) {
+            System.out.println("recovering...");
+            RecoveryService.recover();
+        }
         SpringApplication.run(Application.class, args);
     }
 }

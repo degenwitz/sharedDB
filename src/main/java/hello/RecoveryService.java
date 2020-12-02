@@ -13,13 +13,13 @@ public class RecoveryService {
 
     public static void handleSubPrepare(String process){
         String resp = HostCommunicator.recoverySubPrepare(process);
-        if(resp == "commit"){
+        if (resp.equals("commit")){
             Thread commit = new Commit(process);
             commit.start();
-        } else if( resp == "abort"){
+        } else if(resp.equals("abort")){
             Thread abort = new Abort(process);
             abort.start();
-        } else if(resp == "prepare"){
+        } else if(resp.equals("prepare")){
             Admin.changeStatus(process,"prepare");
             if(!Admin.getValue(process).equals("defective")){
                 HostCommunicator.yesVote(process);
