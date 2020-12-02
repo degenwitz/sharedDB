@@ -1,8 +1,14 @@
 package hello;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class ClientInfo {
+
+    public static String getPrefix(){
+        return "&&setup&&";
+    }
 
     private String hostPort = "8080";
 
@@ -12,6 +18,8 @@ public class ClientInfo {
 
     private List<String> subPorts;
 
+    private boolean isCoordinator = false;
+
     public List<String> getSubPorts() {
         return subPorts;
     }
@@ -19,8 +27,6 @@ public class ClientInfo {
     public void setSubPorts(List<String> subPorts) {
         this.subPorts = subPorts;
     }
-
-    private boolean isCoordinator = false;
 
     public String getHostPort() {
         return hostPort;
@@ -50,5 +56,21 @@ public class ClientInfo {
 
     public void setIsCoordinator(boolean isCoordinator) {
         this.isCoordinator = isCoordinator;
+    }
+
+    public void storeToFile(){
+        Admin.forceWrite(getPrefix()+"hostPort", hostPort);
+        Admin.forceWrite(getPrefix()+"adress", address);
+        Admin.forceWrite(getPrefix()+"myPort", myPort);
+        Admin.forceWrite(getPrefix()+"subPort", subPorts.toString());
+        Admin.forceWrite(getPrefix()+"isCoordinator", Boolean.toString(isCoordinator));
+    }
+
+    public void setUpFromMemory(Map<String,List<String>> memory){
+        hostPort = memory.get(getPrefix()+"hostPort").get(0);
+        address = memory.get(getPrefix()+"adress").get(0);
+        myPort = memory.get(getPrefix()+"myPort").get(0);
+        subPorts = Arrays.asList(memory.get(getPrefix()+"subPort").get(0).replace("[", "").replace("]", "").split(","));
+        isCoordinator = Boolean.parseBoolean(memory.get(getPrefix()+"isCoordinator").get(0));
     }
 }

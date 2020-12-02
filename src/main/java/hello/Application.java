@@ -73,6 +73,7 @@ public class Application {
     @PostMapping("/client/setup")
     public void setupClient(@RequestBody ClientInfo ci){
         HostCommunicator.setup(ci);
+        ci.storeToFile();
     }
 
     @PostMapping("/process/{process}")
@@ -80,6 +81,37 @@ public class Application {
         Admin.newProcess(process, content);
     }
 
+    //for recovery-services
+    @PostMapping("/process/{process}/recovery/prepared")
+    public String recoverAfterPrepare(@PathVariable("process") String process){
+        Map<String,List<String>> processMemories = RecoveryService.getStringListMap(Admin.getNonVolMemory());
+        List<String> l = processMemories.get(process);
+        if(l.contains("commit")){
+            return "commit";
+        }
+        if(l.contains("abort")){
+            return "abort";
+        }
+        return "prepare";
+    }
+
+    @PostMapping("/process/{process}/recovery/sub/status")
+    public String recoverStatusSub(@PathVariable("process") String process){
+        Map<String,List<String>> processMemories = RecoveryService.getStringListMap(Admin.getNonVolMemory());
+        List<String> l = processMemories.get(process);
+        if(l.contains("commit")){
+            return "commit";
+        }
+        if(l.contains("abort")){
+            return "abort";
+        }
+        if(l.contains("prepare")){
+            return "prepare";
+        }
+        return "nothing";
+    }
+
+    //manipulating tools
     @PostMapping("/process/{process}/abort")
     public void prepareToAbort(@PathVariable("process") String process){
         Admin.newProcess(process, "defective");
@@ -127,6 +159,7 @@ public class Application {
 
 
     public static void main(String[] args) {
+        RecoveryService.recover();
         SpringApplication.run(Application.class, args);
     }
 }

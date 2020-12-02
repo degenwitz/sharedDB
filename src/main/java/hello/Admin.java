@@ -56,6 +56,10 @@ public class Admin {
         return processStatus.getOrDefault(process, "no process with this name");
     }
 
+    public static Map<String, String> getUncommittedProcess() {
+        return uncommittedProcess;
+    }
+
     public static String getValue(String process){
         return uncommittedProcess.get(process);
     }
@@ -95,7 +99,7 @@ public class Admin {
             map.put(port, ProcessNames.ACK);
 
             if (!map.containsValue(ProcessNames.COMMIT) && !map.containsValue(ProcessNames.ABORT)) {
-                Admin.normalWrite(process, "end");
+                Admin.forceWrite(process, "end");
                 Admin.changeStatus(process, "forget");
             }
         }

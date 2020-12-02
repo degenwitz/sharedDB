@@ -1,7 +1,11 @@
 package hello;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HostCommunicator {
 
@@ -38,5 +42,30 @@ public class HostCommunicator {
         ResponseEntity<String> response
                 = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
         return;
+    }
+
+    public static String recoverySubPrepare(String process){
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl
+                = clientInfo.getAddress()+":"+clientInfo.getHostPort()+"/process/"+process+"/recovery/prepared";
+        ResponseEntity<String> response
+                = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
+        return response.getBody();
+    }
+
+    public static List<String> recoveryGetSubStatus(String process){
+        List<String> statuses = new ArrayList<>();
+        for(String sub: clientInfo.getSubPorts()){
+            RestTemplate restTemplate = new RestTemplate();
+            String fooResourceUrl
+                    = clientInfo.getAddress()+":"+sub+"/process/"+process+"/recovery/sub/status";
+            ResponseEntity<String> response
+                    = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
+
+            if(response.getStatusCode() == HttpStatus.OK){
+                statuses.add(response.getBody());
+            }
+        }
+        return statuses;
     }
 }
