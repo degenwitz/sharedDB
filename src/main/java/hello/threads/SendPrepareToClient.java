@@ -15,11 +15,14 @@ public class SendPrepareToClient extends restThreads{
     }
 
     public void run(){
-        RestTemplate restTemplate = new RestTemplate();
-        String fooResourceUrl
-                = HostCommunicator.getCI().getAddress() +":"+ port +"/prepare/" + process;
-        Admin.changeStatus(process, Admin.getStatus(process) + " : " + fooResourceUrl);
-        ResponseEntity<String> response
-                = restTemplate.postForEntity(fooResourceUrl, null,  String.class);
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String fooResourceUrl
+                    = HostCommunicator.getCI().getAddress() +":"+ port +"/prepare/" + process;
+                ResponseEntity<String> response
+                        = restTemplate.postForEntity(fooResourceUrl, null, String.class);
+        } catch (org.springframework.web.client.ResourceAccessException e){
+            Admin.__forcewrite("commiting process: " + process,"Coudn't reach: "+port,Admin.WriteReason.DEBUGGING);
+        }
     }
 }

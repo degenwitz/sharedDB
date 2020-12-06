@@ -16,16 +16,19 @@ public class Prepare extends restThreads {
 
     
     public void run(){
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.FORCEWRITE)) return;
         Admin.forceWrite(process, "prepare");
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.CHANGESTATUS)) return;
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Admin.changeStatus(process,"prepare");
         if(!Admin.getValue(process).equals("defective")){
-            if (!ServerStatus.serverAvailable(tn, ProcessNames.YESVOTE)) return;
             HostCommunicator.yesVote(process);
         } else {
-            if (!ServerStatus.serverAvailable(tn, ProcessNames.NOVOTE)) return;
             HostCommunicator.noVote(process);
+            Admin.abort(process);
+            Admin.forget(process);
         }
         if (!ServerStatus.serverAvailable(tn, ProcessNames.END)) return;
     }

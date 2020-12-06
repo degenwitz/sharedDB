@@ -87,33 +87,63 @@ public class Application {
     }
 
     //for recovery-services
-    @PostMapping("/process/{process}/recovery/prepared")
+    @GetMapping("/process/{process}/recovery/prepared")
     public String recoverAfterPrepare(@PathVariable("process") String process){
-        Map<String,List<String>> processMemories = RecoveryService.getStringListMap(Admin.getNonVolMemory());
-        List<String> l = processMemories.get(process);
-        if(l.contains("commit")){
-            return "commit";
-        }
-        if(l.contains("abort")){
-            return "abort";
-        }
-        return "prepare";
-    }
-
-    @PostMapping("/process/{process}/recovery/sub/status")
-    public String recoverStatusSub(@PathVariable("process") String process){
-        Map<String,List<String>> processMemories = RecoveryService.getStringListMap(Admin.getNonVolMemory());
-        List<String> l = processMemories.get(process);
-        if(l.contains("commit")){
-            return "commit";
-        }
-        if(l.contains("abort")){
-            return "abort";
-        }
-        if(l.contains("prepare")){
+        Map<String,List<String>> processMemories = RecoveryService.getStringListMap(Admin.getNonVolMemory(), Admin.WriteReason.FORCEWRITE);
+        if(!processMemories.containsKey(process)){
             return "prepare";
         }
-        return "nothing";
+        List<String> l = processMemories.get(process);
+        for( String s: l) {
+            if (s.contains("commit")) {
+                return "commit";
+            }
+            if (s.contains("abort")) {
+                return "abort";
+            }
+        }
+        return "system error";
+    }
+
+
+    @GetMapping("/process/{process}/recovery/preprepare")
+    public String beforePrepare(@PathVariable("process") String process){
+        System.out.println("smth");
+        Map<String,List<String>> processMemories = RecoveryService.getStringListMap(Admin.getNonVolMemory(), Admin.WriteReason.FORCEWRITE);
+        if(!processMemories.containsKey(process)){
+            return RecoveryService.askSubsAboutProcess(process);
+        }
+        List<String> l = processMemories.get(process);
+        for( String s: l) {
+            if (s.contains("commit")) {
+                return "commit";
+            }
+            if (s.contains("abort")) {
+                return "abort";
+            }
+        }
+        return "system error";
+    }
+
+    @GetMapping("/process/{process}/recovery/sub/status")
+    public String recoverStatusSub(@PathVariable("process") String process){
+        Map<String,List<String>> processMemories = RecoveryService.getStringListMap(Admin.getNonVolMemory(), Admin.WriteReason.FORCEWRITE);
+        if(! processMemories.containsKey(process)){
+            return "nothing";
+        }
+        List<String> l = processMemories.get(process);
+        for(String s: l) {
+            if (s.contains("commit")) {
+                return "commit";
+            }
+            if (s.contains("abort")) {
+                return "abort";
+            }
+            if (s.contains("prepare")) {
+                return "prepare";
+            }
+        }
+        return "system error";
     }
 
     //manipulating tools
@@ -161,13 +191,21 @@ public class Application {
         return Admin.getNonVolMemory();
     }
 
+    @RequestMapping("/processes/uncommited")
+    public Map<String, String> unCommited(){
+        return Admin.getUncommittedProcess();
+    }
+
+    @RequestMapping("/processes/handled")
+    public Map<String, String> handled(){
+        return Admin.getHandledProcesses();
+    }
+
 
 
     public static void main(String[] args) {
-        if (Files.exists(Paths.get("logs","log.txt"))) {
-            System.out.println("recovering...");
-            RecoveryService.recover();
-        }
+        Thread recover = new RecoveryService();
+        recover.start();
         SpringApplication.run(Application.class, args);
     }
 }

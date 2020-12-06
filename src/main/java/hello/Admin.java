@@ -13,6 +13,20 @@ import java.util.*;
 
 public class Admin {
 
+    public enum WriteReason{
+        FORCEWRITE('$'), COMMITEDPROCESSES('£'), UNCOMMITEDPROCESSES('§'), DEBUGGING('|');
+
+        private final char separator;
+
+        private WriteReason(char s){
+            separator = s;
+        }
+
+        public char getSeparator(){
+            return separator;
+        }
+    }
+
     private static Map<String, String> processStatus = new HashMap<>();
 
     public static List<String> getNonVolMemory() {
@@ -34,7 +48,8 @@ public class Admin {
 
     private static List<String> nonVolMemory = new ArrayList<>();
     private static List<String> volMemory = new ArrayList<>();
-    private static Map<String,String> committedProcesses = new HashMap<>();
+
+    private static Map<String,String> handledProcesses = new HashMap<>();
     private static Map<String,String> uncommittedProcess = new HashMap<>();
 
     private static Map<String, Map<String, ProcessNames>> processSubordinates = new HashMap<>();
@@ -48,14 +63,23 @@ public class Admin {
     }
 
     public static void forceWrite(String status, String content){
-        // nonVolMemory.add("$"+status + ":" + content + "$");
-        // get address to make unique file name
-        // ClientInfo ci = HostCommunicator.getCI();
-        //String fn = "log-" + ci.getMyPort();
+        __forcewrite(status, content, WriteReason.FORCEWRITE);
+    }
+
+    public static void forceWriteUncommited(String process, String content){
+        __forcewrite(process,content,WriteReason.UNCOMMITEDPROCESSES);
+    }
+
+    public static void forceWriteCommited(String process, String content){
+        __forcewrite(process,content,WriteReason.COMMITEDPROCESSES);
+    }
+
+
+    public static void __forcewrite(String status, String content, WriteReason wr) {
         try {
             File file = new File("/logs/log.txt");
             FileWriter fw = new FileWriter(file, true);
-            fw.write("$"+status + ":" + content + "$\n");
+            fw.write(wr.getSeparator()+ status + ":" + content + wr.getSeparator()+"\n");
             fw.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,23 +110,53 @@ public class Admin {
     }
 
     public static Map<String, String> getUncommittedProcess() {
+        if(uncommittedProcess.size() == 0){
+            Map<String, List<String>> writtenMemory = RecoveryService.getStringListMap(getNonVolMemory(), WriteReason.UNCOMMITEDPROCESSES);
+            for(Map.Entry<String, List<String>> entry  :writtenMemory.entrySet()){
+                String process = entry.getKey();
+                String value = entry.getValue().get(entry.getValue().size()-1);
+                if( !value.equals("forgotten")){
+                    uncommittedProcess.put(process,value);
+                }
+            }
+        }
         return uncommittedProcess;
     }
 
+    public static Map<String, String> getHandledProcesses() {
+        if(uncommittedProcess.size() == 0){
+            Map<String, List<String>> writtenMemory = RecoveryService.getStringListMap(getNonVolMemory(), WriteReason.COMMITEDPROCESSES);
+            for(Map.Entry<String, List<String>> entry  :writtenMemory.entrySet()){
+                String process = entry.getKey();
+                String value = entry.getValue().get(entry.getValue().size()-1);
+                handledProcesses.put(process,value);
+            }
+        }
+        return handledProcesses;
+    }
+
     public static String getValue(String process){
+        uncommittedProcess = getUncommittedProcess();
         return uncommittedProcess.get(process);
     }
 
     public static void commit(String process){
         if(uncommittedProcess.containsKey(process)) {
-            committedProcesses.put(process, uncommittedProcess.get(process));
+            handledProcesses.put(process, "commited");
+            forceWriteCommited(process, "commited");
         }
     }
 
-    public static void abort(String process) { return; }
+    public static void abort(String process) {
+        if(uncommittedProcess.containsKey(process)) {
+            handledProcesses.put(process, "aborted");
+            forceWriteCommited(process, "aborted");
+        }
+    }
 
     public static void forget(String process){
         uncommittedProcess.remove(process);
+        forceWriteUncommited(process, "forgotten");
         processStatus.remove(process);
         processSubordinates.remove(process);
         return;
@@ -110,6 +164,7 @@ public class Admin {
 
     public static void newProcess(String process, String value){
         uncommittedProcess.put(process, value);
+        forceWriteUncommited(process, value);
         processStatus.put(process,"process has made changes to DB");
         processSubordinates.put(process, new HashMap<>());
         // TODO: which subordinates are part of process
@@ -123,6 +178,9 @@ public class Admin {
     }
 
     public static void ack(String process, String port) {
+        try {
+            Thread.sleep(HostCommunicator.getCI().getSleepTimer());
+        } catch (Exception e){}
         Map<String, ProcessNames> map = processSubordinates.getOrDefault(process, null);
         if (map != null) {
             map.put(port, ProcessNames.ACK);

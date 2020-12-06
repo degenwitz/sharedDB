@@ -13,29 +13,42 @@ import java.util.Map;
 import java.util.Set;
 
 public class HostCommit extends restThreads{
+    int sleepTime;
     public HostCommit(String p){
         super(p);
+        sleepTime = HostCommunicator.getCI().getSleepTimer();
     }
 
     public void run(){
-        Admin.changeStatus(process, "is coord, starting comitting");
+        sleep();
         Admin.resetProcessSubordinates(process);
         List<String> ports = HostCommunicator.getCI().getSubPorts();
         for(String port:ports){
-            Thread t = new SendPrepareToClient(process,port);
-            t.start();
-        }
-        Admin.appendStatus(process, "sent all prepares");
-        try {
-            Thread.sleep(10000);
-            Map<String, ProcessNames> map = Admin.getProcessSubordinates().getOrDefault(process, null);
-            boolean readyToCommit = !map.containsValue(ProcessNames.NOVOTE);
-            for(String port:ports){
-                if(!map.containsKey(port)){readyToCommit = false; break; }
+            try {
+                Thread t = new SendPrepareToClient(process, port);
+                t.start();
+            } catch (Exception e){
             }
+        }
+        sleep();
+        try {
+            Boolean readyToCommit = null;
+            Map<String, ProcessNames> map;
+            do {
+                map = Admin.getProcessSubordinates().getOrDefault(process, null);
+                readyToCommit = !map.containsValue(ProcessNames.NOVOTE);
+                for (String port : ports) {
+                    if (!map.containsKey(port)) {
+                        readyToCommit = null;
+                        break;
+                    }
+                }
+                sleep(100);
+            } while (readyToCommit == null);
+            sleep();
             if (readyToCommit) {
                 Admin.forceWrite(process, "commit ".concat(Arrays.toString(ports.toArray())));
-                Admin.appendStatus(process, "all votes yes, will commit now ");
+                sleep();
                 for (String p: ports) {
                     RestTemplate restTemplate = new RestTemplate();
                     String fooResourceUrl
@@ -46,7 +59,7 @@ public class HostCommit extends restThreads{
             }
             else {
                 Admin.forceWrite(process, "abort");
-                Admin.changeStatus(process, "not enough yes votes, will abort now");
+                sleep();
                 for (String p: ports) {
                     if (map.get(p) != ProcessNames.NOVOTE) {
                         RestTemplate restTemplate = new RestTemplate();
@@ -59,6 +72,13 @@ public class HostCommit extends restThreads{
 
             }
         } catch (Exception e){}
-        Admin.appendStatus(process, "done");
+    }
+
+    void sleep(){
+        try {
+            Thread.sleep(sleepTime);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

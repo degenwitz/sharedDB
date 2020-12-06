@@ -20,6 +20,16 @@ public class ClientInfo {
 
     private boolean isCoordinator = false;
 
+    private int sleepTimer = 0; //in miliseconds
+
+    public int getSleepTimer() {
+        return sleepTimer;
+    }
+
+    public void setSleepTimer(int sleepTimer) {
+        this.sleepTimer = sleepTimer;
+    }
+
     public List<String> getSubPorts() {
         return subPorts;
     }
