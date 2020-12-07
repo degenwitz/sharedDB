@@ -72,8 +72,9 @@ public class ClientInfo {
         Admin.forceWrite(getPrefix()+"hostPort", hostPort);
         Admin.forceWrite(getPrefix()+"adress", address);
         Admin.forceWrite(getPrefix()+"myPort", myPort);
-        Admin.forceWrite(getPrefix()+"subPort", subPorts.toString());
+        Admin.forceWrite(getPrefix()+"subPort", subPorts.toString().replaceAll("\\s+", ""));
         Admin.forceWrite(getPrefix()+"isCoordinator", Boolean.toString(isCoordinator));
+        Admin.forceWrite(getPrefix()+"sleepTimer", Integer.toString(sleepTimer));
     }
 
     public void setUpFromMemory(Map<String,List<String>> memory){
@@ -81,6 +82,7 @@ public class ClientInfo {
         address = memory.get(getPrefix()+"adress").get(0);
         myPort = memory.get(getPrefix()+"myPort").get(0);
         subPorts = Arrays.asList(memory.get(getPrefix()+"subPort").get(0).replace("[", "").replace("]", "").split(","));
+        sleepTimer = Integer.parseInt(memory.get(getPrefix()+"sleepTimer").get(0));
         isCoordinator = Boolean.parseBoolean(memory.get(getPrefix()+"isCoordinator").get(0));
     }
 }

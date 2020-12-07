@@ -1,7 +1,7 @@
 package hello.processes;
 
 public enum ThreadName {
-    COMMIT("commit"), PREPARE("prepare"), ABORT("abort"), ;
+    COMMIT("commit"), PREPARE("prepare"), ABORT("abort");
 
     private final String name;
 

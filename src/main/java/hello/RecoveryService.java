@@ -4,10 +4,7 @@ import hello.processes.ProcessNames;
 import hello.processes.ServerStatus;
 import hello.threads.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RecoveryService extends Thread{
 
@@ -96,27 +93,42 @@ public class RecoveryService extends Thread{
             }
         } else {
             for(Map.Entry<String,String> proc: uncommitedProcesses.entrySet()){
-                String process = proc.getKey();
-                if(writtenMemory.get(process) == null){
-
-                } else if(writtenMemory.get(process).contains("end")){
-                    continue;
-                } else if(writtenMemory.get(process).contains("commit")){
-                    for(String port:HostCommunicator.getCI().getSubPorts()){
-                        Thread commit = new SendCommitToClient(process,port);
-                        commit.start();
+                try {
+                    String process = proc.getKey();
+                    String status = "nothing";
+                    if (writtenMemory.containsKey(process)) {
+                        for (String s : writtenMemory.get(process)) {
+                            if (s.contains("end")) status = "end";
+                            else if (s.contains("commit") && status != "end") status = "commit";
+                            else if (s.contains("abort") && status != "end") status = "abort";
+                        }
                     }
-                } else if(writtenMemory.get(process).contains("abort")){
-                    for(String port:HostCommunicator.getCI().getSubPorts()){
-                        Thread commit = new SendAbortToClient(process,port);
-                        commit.start();
+                    if (status == "end") {
+                        Admin.__forcewrite("recovering process: " + process, "processes already handled", Admin.WriteReason.DEBUGGING);
+                        continue;
+                    } else if (status == "commit") {
+                        Admin.__forcewrite("recovering process: " + process, "process should be comitted", Admin.WriteReason.DEBUGGING);
+                        for (String port : HostCommunicator.getCI().getSubPorts()) {
+                            Thread commit = new SendCommitToClient(process, port);
+                            commit.start();
+                        }
+                        Admin.forceWrite(process, "end");
+                    } else if (status == "abort") {
+                        Admin.__forcewrite("recovering process: " + process, "process should be aborted", Admin.WriteReason.DEBUGGING);
+                        for (String port : HostCommunicator.getCI().getSubPorts()) {
+                            Thread commit = new SendAbortToClient(process, port);
+                            commit.start();
+                        }
+                    } else {
+                        Admin.__forcewrite("recovering process: " + process, "coordinator knows nothing", Admin.WriteReason.DEBUGGING);
+                        List<String> statuses = HostCommunicator.recoveryGetSubStatus(process);
+                        if (statuses.contains("prepare")) {
+                            Thread restart = new HostCommit(process);
+                            restart.start();
+                        }
                     }
-                } else {
-                    List<String> statuses= HostCommunicator.recoveryGetSubStatus(process);
-                    if( statuses.contains("prepare")){
-                        Thread restart = new HostCommit(process);
-                        restart.start();
-                    }
+                }catch (Exception e){
+                    Admin.__forcewrite("recovering process when crashed: ", e.toString() , Admin.WriteReason.DEBUGGING);
                 }
             }
         }

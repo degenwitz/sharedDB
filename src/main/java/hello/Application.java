@@ -2,6 +2,7 @@ package hello;
 
 import hello.processes.ProcessNames;
 import hello.processes.ServerStatus;
+import hello.processes.ThreadName;
 import hello.threads.Abort;
 import hello.threads.Commit;
 import hello.threads.HostCommit;
@@ -54,6 +55,7 @@ public class Application {
 
     @PostMapping("/yes_vote/{process}")
     public void yesVote(@PathVariable("process") String process, @RequestBody String port) {
+        ServerStatus.serverAvailableElseSleep(ThreadName.PREPARE, ProcessNames.GETVOTES);
         if (HostCommunicator.getCI().getIsCoordinator()) {
             Admin.registerVote(process, port, ProcessNames.YESVOTE);
         }
@@ -61,6 +63,7 @@ public class Application {
 
     @PostMapping("/no_vote/{process}")
     public void noVote(@PathVariable("process") String process, @RequestBody String port) {
+        ServerStatus.serverAvailableElseSleep(ThreadName.PREPARE, ProcessNames.GETVOTES);
         if (HostCommunicator.getCI().getIsCoordinator()) {
             Admin.registerVote(process, port, ProcessNames.NOVOTE);
         }
@@ -68,6 +71,8 @@ public class Application {
 
     @PostMapping("/ack/{process}")
     public void ack(@PathVariable("process") String process, @RequestBody String port) {
+        ServerStatus.serverAvailableElseSleep(ThreadName.ABORT, ProcessNames.GETACK);
+        ServerStatus.serverAvailableElseSleep(ThreadName.COMMIT, ProcessNames.GETACK);
         if (HostCommunicator.getCI().getIsCoordinator()) {
             Admin.ack(process, port);
         }

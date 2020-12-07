@@ -4,6 +4,8 @@ import hello.Admin;
 import hello.ClientInfo;
 import hello.HostCommunicator;
 import hello.processes.ProcessNames;
+import hello.processes.ServerStatus;
+import hello.processes.ThreadName;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,13 +16,18 @@ import java.util.Set;
 
 public class HostCommit extends restThreads{
     int sleepTime;
+
+    private static ThreadName prepared = ThreadName.PREPARE;
+    private static ThreadName commit = ThreadName.COMMIT;
+    private static ThreadName abort = ThreadName.ABORT;
+
     public HostCommit(String p){
         super(p);
         sleepTime = HostCommunicator.getCI().getSleepTimer();
     }
 
     public void run(){
-        sleep();
+        ServerStatus.serverAvailableElseSleep(prepared, ProcessNames.SENDPREPARE);
         Admin.resetProcessSubordinates(process);
         List<String> ports = HostCommunicator.getCI().getSubPorts();
         for(String port:ports){
@@ -30,8 +37,8 @@ public class HostCommit extends restThreads{
             } catch (Exception e){
             }
         }
-        sleep();
         try {
+            ServerStatus.serverAvailableElseSleep(prepared, ProcessNames.GETVOTES);
             Boolean readyToCommit = null;
             Map<String, ProcessNames> map;
             do {
@@ -45,10 +52,11 @@ public class HostCommit extends restThreads{
                 }
                 sleep(100);
             } while (readyToCommit == null);
-            sleep();
+
             if (readyToCommit) {
+                ServerStatus.serverAvailableElseSleep(commit, ProcessNames.FORCEWRITE);
                 Admin.forceWrite(process, "commit ".concat(Arrays.toString(ports.toArray())));
-                sleep();
+                ServerStatus.serverAvailableElseSleep(commit, ProcessNames.SENDCOMMIT);
                 for (String p: ports) {
                     RestTemplate restTemplate = new RestTemplate();
                     String fooResourceUrl
@@ -58,8 +66,9 @@ public class HostCommit extends restThreads{
                 }
             }
             else {
+                ServerStatus.serverAvailableElseSleep(abort, ProcessNames.FORCEWRITE);
                 Admin.forceWrite(process, "abort");
-                sleep();
+                ServerStatus.serverAvailableElseSleep(abort, ProcessNames.SENDABORT);
                 for (String p: ports) {
                     if (map.get(p) != ProcessNames.NOVOTE) {
                         RestTemplate restTemplate = new RestTemplate();
@@ -72,13 +81,5 @@ public class HostCommit extends restThreads{
 
             }
         } catch (Exception e){}
-    }
-
-    void sleep(){
-        try {
-            Thread.sleep(sleepTime);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

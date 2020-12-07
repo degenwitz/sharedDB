@@ -1,5 +1,8 @@
 package hello.processes;
 
+import hello.Admin;
+import hello.HostCommunicator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,12 +17,17 @@ public class ServerStatus {
         return serverDown;
     }
 
-    public static boolean serverAvailable(ThreadName tn, ProcessNames pn){
-        if( serverDown ){
-            return false;
-        }
+    public static void serverAvailableElseSleep(ThreadName tn, ProcessNames pn){
         if( serverStatus == null){
-            return true;
+            return;
+        }
+        if(serverDown){
+            try{
+                Thread.sleep(HostCommunicator.getCI().getSleepTimer());
+                return;
+            } catch(java.lang.InterruptedException e){
+                System.out.println(e);
+            }
         }
         if(currentThread != tn){
             currentThread = tn;
@@ -36,9 +44,14 @@ public class ServerStatus {
         if(currentThread.equalsName(serverStatus.getThreadToStopAt()) && pn.equalsName(serverStatus.processToStopAt) && appearancesInThread.get(pn) == serverStatus.appearancesToStopAt){
             serverDown = true;
             currentThread = null;
-            return false;
+            try{
+                Thread.sleep(HostCommunicator.getCI().getSleepTimer());
+            } catch(java.lang.InterruptedException e){
+                System.out.println(e);
+            }
+            return;
         }
-        return true;
+        return;
     }
 
     public static void setup(ServerStatus ss) {

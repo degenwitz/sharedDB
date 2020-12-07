@@ -15,16 +15,21 @@ public class Commit extends restThreads {
     }
 
     public void run(){
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.CHANGESTATUS)) return;
+        if(!Admin.getUncommittedProcess().containsKey(process)){
+            Admin.__forcewrite("recovering process: " + process, "already forgotten", Admin.WriteReason.DEBUGGING);
+            HostCommunicator.ack(process);
+            return;
+        }
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.CHANGESTATUS);
         Admin.changeStatus(process,"commit");
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.FORCEWRITE)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.FORCEWRITE);
         Admin.forceWrite(process, "commit");
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.ACK)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.ACK);
         HostCommunicator.ack(process);
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.COMMIT)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.COMMIT);
         Admin.commit(process);
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.FORGET)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.FORGET);
         Admin.forget(process);
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.END)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.END);
     }
 }

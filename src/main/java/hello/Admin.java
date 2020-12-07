@@ -144,6 +144,8 @@ public class Admin {
         if(uncommittedProcess.containsKey(process)) {
             handledProcesses.put(process, "commited");
             forceWriteCommited(process, "commited");
+        } else{
+            Admin.__forcewrite("commiting: " + process, "already forgotten", Admin.WriteReason.DEBUGGING);
         }
     }
 
@@ -170,7 +172,7 @@ public class Admin {
         // TODO: which subordinates are part of process
     }
 
-    public static void registerVote(String process, String port, ProcessNames vote) {
+    public static synchronized void registerVote(String process, String port, ProcessNames vote) {
         Map<String, ProcessNames> map = processSubordinates.getOrDefault(process, null);
         if (map != null) {
             map.put(port, vote);

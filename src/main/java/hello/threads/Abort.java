@@ -15,16 +15,16 @@ public class Abort extends restThreads{
     }
 
     public void run(){
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.CHANGESTATUS)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.CHANGESTATUS);
         Admin.changeStatus(process,"abort");
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.FORCEWRITE)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.FORCEWRITE);
         Admin.forceWrite(process, "abort");
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.ACK)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.ACK);
         HostCommunicator.ack(process);
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.ABORT)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.ABORT);
         Admin.abort(process);
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.FORGET)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.FORGET);
         Admin.forget(process);
-        if (!ServerStatus.serverAvailable(tn, ProcessNames.END)) return;
+        ServerStatus.serverAvailableElseSleep(tn, ProcessNames.END);
     }
 }
