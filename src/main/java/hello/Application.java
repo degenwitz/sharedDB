@@ -209,8 +209,11 @@ public class Application {
 
 
     public static void main(String[] args) {
-        Thread recover = new RecoveryService();
-        recover.start();
+        File log = new File("/logs/log.txt");
+        if (log.exists()) {
+            Thread recover = new RecoveryService();
+            recover.start();
+        }
         SpringApplication.run(Application.class, args);
     }
 }
