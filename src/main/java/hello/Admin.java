@@ -77,6 +77,10 @@ public class Admin {
 	}
 
 	public static void changeStatus(String process, String status) {
+	    if(!processStatus.containsKey(process)){
+	        processStatus.put(process,status);
+	        return;
+        }
 		if (status.equals("forget")) {
 			processStatus.remove(process);
 		} else if (status.contains(process)) {
@@ -109,7 +113,7 @@ public class Admin {
 	}
 
 	public static Map<String, String> getHandledProcesses() {
-		if (uncommittedProcess.size() == 0) {
+		if (handledProcesses.size() == 0) {
 			Map<String, List<String>> writtenMemory = RecoveryService.getStringListMap(getNonVolMemory(), WriteReason.COMMITEDPROCESSES);
 			for (Map.Entry<String, List<String>> entry : writtenMemory.entrySet()) {
 				String process = entry.getKey();
@@ -160,7 +164,13 @@ public class Admin {
 	public static synchronized void registerVote(String process, String port, ProcessNames vote) {
 		Map<String, ProcessNames> map = processSubordinates.getOrDefault(process, null);
 		if (map != null) {
-			map.put(port, vote);
+			if(vote == ProcessNames.NOVOTE || vote == ProcessNames.YESVOTE){
+				if(!map.containsKey(port)){
+					map.put(port, vote);
+				}
+			} else {
+				map.put(port, vote);
+			}
 		}
 	}
 
@@ -173,7 +183,7 @@ public class Admin {
 		if (map != null) {
 			map.put(port, ProcessNames.ACK);
 
-			if (!map.containsValue(ProcessNames.COMMIT) && !map.containsValue(ProcessNames.ABORT)) {
+			if (!map.containsValue(ProcessNames.COMMIT) && !map.containsValue(ProcessNames.ABORT) && !map.containsValue(ProcessNames.YESVOTE) && !map.containsValue(ProcessNames.NOVOTE)) {
 				Admin.forceWrite(process, "end");
 				Admin.changeStatus(process, "forget");
 			}

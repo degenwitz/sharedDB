@@ -15,6 +15,8 @@ public class Commit extends restThreads {
     }
 
     public void run(){
+        Admin.__forcewrite("trying to commit: " + process,"in process" + HostCommunicator.getCI().getMyPort(),Admin.WriteReason.DEBUGGING);
+
         if(!Admin.getUncommittedProcess().containsKey(process)){
             Admin.__forcewrite("recovering process: " + process, "already forgotten", Admin.WriteReason.DEBUGGING);
             HostCommunicator.ack(process);

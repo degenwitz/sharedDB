@@ -7,12 +7,19 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class HostCommunicator {
 
     private static ClientInfo clientInfo;
 
     public static ClientInfo getCI(){
+        if(clientInfo == null){
+            List<String> nonVolMemory = Admin.getNonVolMemory();
+            Map<String, List<String>> writtenMemory = RecoveryService.getStringListMap(nonVolMemory, Admin.WriteReason.FORCEWRITE);
+            ClientInfo ci = new ClientInfo();
+            ci.setUpFromMemory(writtenMemory);
+        }
         return clientInfo;
     }
 
@@ -50,6 +57,7 @@ public class HostCommunicator {
                         = clientInfo.getAddress() +":"+ clientInfo.getHostPort()+"/no_vote/" + process;
                 ResponseEntity<String> response
                         = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
+                looping = false;
                 } catch (org.springframework.web.client.ResourceAccessException e) {
                 Admin.__forcewrite("NoVote on process: " + process, "Coudn't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
                 try {
@@ -65,12 +73,14 @@ public class HostCommunicator {
         Boolean looping = true;
         for(int i = 0; i < 5 && looping; ++i) {
             try {
-            RestTemplate restTemplate = new RestTemplate();
-            String fooResourceUrl
-                    = clientInfo.getAddress() + ":" + clientInfo.getHostPort() + "/ack/" + process;
-            ResponseEntity<String> response
-                    = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(), String.class);
-        } catch (org.springframework.web.client.ResourceAccessException e) {
+                RestTemplate restTemplate = new RestTemplate();
+                String fooResourceUrl
+                        = clientInfo.getAddress() + ":" + clientInfo.getHostPort() + "/ack/" + process;
+                ResponseEntity<String> response
+                        = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(), String.class);
+                Admin.__forcewrite("Ack on process: " + process, "should have worked: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
+                looping = false;
+            } catch (org.springframework.web.client.ResourceAccessException e) {
                 Admin.__forcewrite("Ack on process: " + process, "Coudn't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
                 try {
                     Thread.sleep(10000);

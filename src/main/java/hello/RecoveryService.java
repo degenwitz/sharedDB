@@ -10,20 +10,19 @@ public class RecoveryService extends Thread{
 
     public static void handlePrePrepare(String process){
         String resp = HostCommunicator.recoverySubPrePrepare(process);
+        Admin.__forcewrite("recovering process: " + process,"recived from coord: "+resp,Admin.WriteReason.DEBUGGING);
         if(!resp.equals("nothing")){
             if (resp.equals("commit")){
+                Admin.__forcewrite("recovering process: " + process,"trying to commit again",Admin.WriteReason.DEBUGGING);
                 Thread commit = new Commit(process);
                 commit.start();
             } else if(resp.equals("abort")){
                 Thread abort = new Abort(process);
                 abort.start();
             } else if(resp.equals("prepare")){
-                Admin.changeStatus(process,"prepare");
-                if(!Admin.getValue(process).equals("defective")){
-                    HostCommunicator.yesVote(process);
-                } else {
-                    HostCommunicator.noVote(process);
-                }
+                Admin.__forcewrite("recovering process: " + process,"trying to prepare again",Admin.WriteReason.DEBUGGING);
+                Thread t = new Prepare(process);
+                t.start();
             }
         }
     }

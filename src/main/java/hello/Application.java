@@ -1,5 +1,6 @@
 package hello;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import hello.processes.ProcessNames;
 import hello.processes.ServerStatus;
 import hello.processes.ThreadName;
@@ -9,7 +10,9 @@ import hello.threads.HostCommit;
 import hello.threads.Prepare;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +37,7 @@ public class Application {
 
     @PostMapping("/commit/{process}")
     public void commit(@PathVariable("process") String process){
+        Admin.__forcewrite("trying to commit: " + process,"smth",Admin.WriteReason.DEBUGGING);
         if (HostCommunicator.getCI().getIsCoordinator()){
             Thread commitThread = new HostCommit(process);
             commitThread.start();
@@ -54,19 +59,127 @@ public class Application {
     }
 
     @PostMapping("/yes_vote/{process}")
-    public void yesVote(@PathVariable("process") String process, @RequestBody String port) {
+    public void yesVote(@PathVariable("process") String process, @RequestBody String subport) {
         ServerStatus.serverAvailableElseSleep(ThreadName.PREPARE, ProcessNames.GETVOTES);
         if (HostCommunicator.getCI().getIsCoordinator()) {
-            Admin.registerVote(process, port, ProcessNames.YESVOTE);
+            Admin.registerVote(process, subport, ProcessNames.YESVOTE);
         }
+        try {
+            ThreadName prepared = ThreadName.PREPARE;
+            List<String> ports = HostCommunicator.getCI().getSubPorts();
+            ServerStatus.serverAvailableElseSleep(prepared, ProcessNames.GETVOTES);
+            Boolean readyToCommit = null;
+            Map<String, ProcessNames> map;
+            map = Admin.getProcessSubordinates().getOrDefault(process, null);
+            readyToCommit = !map.containsValue(ProcessNames.NOVOTE);
+            for (String port : ports) {
+                if (!map.containsKey(port)) {
+                    return;
+                }
+            }
+
+            if (readyToCommit) {
+                ThreadName commit = ThreadName.COMMIT;
+                ServerStatus.serverAvailableElseSleep(commit, ProcessNames.FORCEWRITE);
+                Admin.forceWrite(process, "commit ".concat(Arrays.toString(ports.toArray())));
+                ServerStatus.serverAvailableElseSleep(commit, ProcessNames.SENDCOMMIT);
+                for (String p: ports) {
+                    Boolean looping = true;
+                    for(int k = 0; k < 10 && looping; ++k) {
+                        try {
+                            RestTemplate restTemplate = new RestTemplate();
+                            String fooResourceUrl
+                                    = HostCommunicator.getCI().getAddress() + ":" + p + "/commit/" + process;
+                            Admin.__forcewrite("trying to send commit for: " + process, "to adress: " + fooResourceUrl, Admin.WriteReason.DEBUGGING);
+                            ResponseEntity<String> r = restTemplate.postForEntity(fooResourceUrl, null, String.class);
+                            map.put(p, ProcessNames.COMMIT);
+                            looping = false;
+                        }catch (Exception e){
+                            Admin.__forcewrite("trying to send commit: " + process + " : " + p,"error: " + e.toString(),Admin.WriteReason.DEBUGGING);
+                            Thread.sleep(3000);
+                        }
+                    }
+                }
+            }
+            else {
+                ThreadName abort = ThreadName.ABORT;
+                ServerStatus.serverAvailableElseSleep(abort, ProcessNames.FORCEWRITE);
+                Admin.forceWrite(process, "abort");
+                ServerStatus.serverAvailableElseSleep(abort, ProcessNames.SENDABORT);
+                for (String p: ports) {
+                    if (map.get(p) != ProcessNames.NOVOTE) {
+                        RestTemplate restTemplate = new RestTemplate();
+                        String fooResourceUrl
+                                = HostCommunicator.getCI().getAddress() +":"+ p +"/abort/" + process;
+                        ResponseEntity<String> r = restTemplate.postForEntity(fooResourceUrl, null, String.class);
+                        map.put(p, ProcessNames.ABORT);
+                    }
+                }
+
+            }
+        } catch (Exception e){}
     }
 
     @PostMapping("/no_vote/{process}")
-    public void noVote(@PathVariable("process") String process, @RequestBody String port) {
+    public void noVote(@PathVariable("process") String process, @RequestBody String subport) {
         ServerStatus.serverAvailableElseSleep(ThreadName.PREPARE, ProcessNames.GETVOTES);
         if (HostCommunicator.getCI().getIsCoordinator()) {
-            Admin.registerVote(process, port, ProcessNames.NOVOTE);
+            Admin.registerVote(process, subport, ProcessNames.NOVOTE);
         }
+        try {
+        ThreadName prepared = ThreadName.PREPARE;
+        List<String> ports = HostCommunicator.getCI().getSubPorts();
+        ServerStatus.serverAvailableElseSleep(prepared, ProcessNames.GETVOTES);
+        Boolean readyToCommit = null;
+        Map<String, ProcessNames> map;
+        map = Admin.getProcessSubordinates().getOrDefault(process, null);
+        readyToCommit = !map.containsValue(ProcessNames.NOVOTE);
+        for (String port : ports) {
+            if (!map.containsKey(port)) {
+                return;
+            }
+        }
+
+        if (readyToCommit) {
+            ThreadName commit = ThreadName.COMMIT;
+            ServerStatus.serverAvailableElseSleep(commit, ProcessNames.FORCEWRITE);
+            Admin.forceWrite(process, "commit ".concat(Arrays.toString(ports.toArray())));
+            ServerStatus.serverAvailableElseSleep(commit, ProcessNames.SENDCOMMIT);
+            for (String p: ports) {
+                Boolean looping = true;
+                for(int k = 0; k < 10 && looping; ++k) {
+                    try {
+                        RestTemplate restTemplate = new RestTemplate();
+                        String fooResourceUrl
+                                = HostCommunicator.getCI().getAddress() + ":" + p + "/commit/" + process;
+                        Admin.__forcewrite("trying to send commit for: " + process, "to adress: " + fooResourceUrl, Admin.WriteReason.DEBUGGING);
+                        ResponseEntity<String> r = restTemplate.postForEntity(fooResourceUrl, null, String.class);
+                        map.put(p, ProcessNames.COMMIT);
+                        looping = false;
+                    }catch (Exception e){
+                        Admin.__forcewrite("trying to send commit: " + process + " : " + p,"error: " + e.toString(),Admin.WriteReason.DEBUGGING);
+                        Thread.sleep(3000);
+                    }
+                }
+            }
+        }
+        else {
+            ThreadName abort = ThreadName.ABORT;
+            ServerStatus.serverAvailableElseSleep(abort, ProcessNames.FORCEWRITE);
+            Admin.forceWrite(process, "abort");
+            ServerStatus.serverAvailableElseSleep(abort, ProcessNames.SENDABORT);
+            for (String p: ports) {
+                if (map.get(p) != ProcessNames.NOVOTE) {
+                    RestTemplate restTemplate = new RestTemplate();
+                    String fooResourceUrl
+                            = HostCommunicator.getCI().getAddress() +":"+ p +"/abort/" + process;
+                    ResponseEntity<String> r = restTemplate.postForEntity(fooResourceUrl, null, String.class);
+                    map.put(p, ProcessNames.ABORT);
+                }
+            }
+
+        }
+    } catch (Exception e){}
     }
 
     @PostMapping("/ack/{process}")

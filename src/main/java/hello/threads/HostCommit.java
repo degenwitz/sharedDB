@@ -38,6 +38,7 @@ public class HostCommit extends restThreads{
             }
         }
         try {
+            /*
             ServerStatus.serverAvailableElseSleep(prepared, ProcessNames.GETVOTES);
             Boolean readyToCommit = null;
             Map<String, ProcessNames> map;
@@ -78,8 +79,8 @@ public class HostCommit extends restThreads{
                         map.put(p, ProcessNames.ABORT);
                     }
                 }
-
             }
+*/
         } catch (Exception e){}
     }
 }
