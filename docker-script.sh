@@ -25,7 +25,8 @@ curl --location --request POST 'http://localhost:8080/client/setup' \
 	\"address\": \"$internaldockeradress\",
 	\"myPort\": \"8080\",
 	\"isCoordinator\": \"true\",
-	\"subPorts\": [${SUB_PORTS%?}]
+	\"subPorts\": [${SUB_PORTS%?}],
+	\"sleepTimer\": 10000
 }"
 
 # start and setup subordinates
@@ -39,7 +40,8 @@ for ((i = 1; i <= $1; i++)); do
 	\"address\": \"$internaldockeradress\",
 	\"myPort\": \"808$i\",
 	\"isCoordinator\": \"false\",
-	\"subPorts\": []
+	\"subPorts\": [],
+	\"sleepTimer\": 10000
 }"
 done
 
