@@ -41,7 +41,6 @@ for ((j = 1; j <= $1; j++)); do
     docker start ${SUBORDINATE_LIST[$((i - 1))]}
     sleep 8
   done
-  wait $SUB_PIDS
 
   sleep 10 # wait for all of the containers to start up
 
@@ -78,7 +77,7 @@ for ((j = 1; j <= $1; j++)); do
     --data-raw "Lorem ipsumCoord$j"
     
 
-  CRASH_TIME=$((RANDOM % 20 + 20))
+  CRASH_TIME=$((RANDOM % 200 + 100))
   PORT_TO_CRASH=$((RANDOM % ($NUMBER_OF_SUBS + 1)))
 
   sleep 10 # wait for setups to finish
@@ -87,7 +86,7 @@ for ((j = 1; j <= $1; j++)); do
   curl --location --request POST "http://localhost:8080/commit/$j"
 
   echo -e "\033[0mWaiting for crash...(${CRASH_TIME}s)\033[2m"
-  sleep $CRASH_TIME
+  sleep $((CRASH_TIME/100))
 
   if [ $PORT_TO_CRASH -eq 0 ]; then
     docker stop $ROOT_COORDINATOR
