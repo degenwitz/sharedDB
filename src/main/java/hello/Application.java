@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import sun.reflect.generics.tree.Tree;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 @SpringBootApplication
 @RestController
@@ -296,12 +298,12 @@ public class Application {
 
     @RequestMapping("/processes/uncommited")
     public Map<String, String> unCommited(){
-        return Admin.getUncommittedProcess();
+        return new TreeMap<String, String>(Admin.getUncommittedProcess());
     }
 
     @RequestMapping("/processes/handled")
     public Map<String, String> handled(){
-        return Admin.getHandledProcesses();
+        return new TreeMap<String, String>(Admin.getHandledProcesses());
     }
 
 
