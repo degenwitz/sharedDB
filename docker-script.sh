@@ -39,7 +39,7 @@ for ((j = 1; j <= $1; j++)); do
   # start subordinates
   for ((i = 1; i <= $NUMBER_OF_SUBS; i++)); do
     docker start ${SUBORDINATE_LIST[$((i - 1))]}
-    sleep 5
+    sleep 8
   done
   wait $SUB_PIDS
 
@@ -73,7 +73,7 @@ for ((j = 1; j <= $1; j++)); do
 }"
   done
 
-  CRASH_TIME=$((RANDOM % 20 + 45))
+  CRASH_TIME=$((RANDOM % 20 + 20))
   PORT_TO_CRASH=$((RANDOM % ($NUMBER_OF_SUBS + 1)))
 
   sleep 10 # wait for setups to finish
@@ -92,6 +92,7 @@ for ((j = 1; j <= $1; j++)); do
     docker stop ${SUBORDINATE_LIST[$((PORT_TO_CRASH - 1))]}
     echo -e "\033[0mStopped subordinate node on port 808$PORT_TO_CRASH in $CRASH_TIME seconds.\033[2m"
     docker start ${SUBORDINATE_LIST[$((PORT_TO_CRASH - 1))]}
+    sleep 5
   fi
 
   # check for inconsistencies
