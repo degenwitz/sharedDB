@@ -2,10 +2,10 @@ package hello.threads;
 
 public class restThreads extends Thread {
 
-    String process = "null";
+	String process = "null";
 
-    public restThreads(String process){
-        super();
-        this.process = process;
-    }
+	public restThreads(String process) {
+		super();
+		this.process = process;
+	}
 }

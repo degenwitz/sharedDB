@@ -73,7 +73,7 @@ for ((j = 1; j <= $1; j++)); do
 }"
     echo "http://localhost:808$i/process/$j"
     curl --location --request POST "http://localhost:808$i/process/$j" \
-    --data-raw "Lorem ipsumm $i$j"
+      --data-raw "Lorem ipsum $i$j"
   done
   curl --location --request POST "http://localhost:8080/process/$j" \
     --data-raw "Lorem ipsumCoord$j"
@@ -81,10 +81,9 @@ for ((j = 1; j <= $1; j++)); do
   # chance of one subordinate to abort
   CHANCE=$((RANDOM % 2))
   echo $CHANCE
-  if [[ $CHANCE = 1 ]]; then
+  if [[ $CHANCE == 1 ]]; then
     curl --location --request POST "http://localhost:8081/process/1/abort"
   fi
-    
 
   CRASH_TIME=$((RANDOM % 400 + 100))
   PORT_TO_CRASH=$((RANDOM % ($NUMBER_OF_SUBS + 1)))
@@ -94,16 +93,16 @@ for ((j = 1; j <= $1; j++)); do
   # start transaction
   curl --location --request POST "http://localhost:8080/commit/$j"
 
-  echo -e "\033[0mWaiting for crash...($((CRASH_TIME/100))s)\033[2m"
-  sleep $((CRASH_TIME/100))
+  echo -e "\033[0mWaiting for crash...($((CRASH_TIME / 100))s)\033[2m"
+  sleep $((CRASH_TIME / 100))
 
   if [ $PORT_TO_CRASH -eq 0 ]; then
     docker stop $ROOT_COORDINATOR
-    echo -e "\033[0mStopped root node after $((CRASH_TIME/100)) seconds.\033[2m"
+    echo -e "\033[0mStopped root node after $((CRASH_TIME / 100)) seconds.\033[2m"
     docker start $ROOT_COORDINATOR
   else
     docker stop ${SUBORDINATE_LIST[$((PORT_TO_CRASH - 1))]}
-    echo -e "\033[0mStopped subordinate node on port 808$PORT_TO_CRASH in $((CRASH_TIME/100)) seconds.\033[2m"
+    echo -e "\033[0mStopped subordinate node on port 808$PORT_TO_CRASH in $((CRASH_TIME / 100)) seconds.\033[2m"
     docker start ${SUBORDINATE_LIST[$((PORT_TO_CRASH - 1))]}
     sleep 5
   fi
@@ -139,11 +138,11 @@ for ((j = 1; j <= $1; j++)); do
 
   echo "$j,$NUMBER_OF_SUBS,$PORT_TO_CRASH,$HANDLED_CORRECTLY,$UNCOMMITTED_CORRECTLY" >>$TESTOUT
 
-  sleep 20
-  for ((i = 0; i <= $NUMBER_OF_SUBS; i++)); do
-    RESULT=$(curl --silent --location --request GET "http://localhost:808$i/memory/nonVol")
-    echo $RESULT
-  done
+#  sleep 20
+#  for ((i = 0; i <= $NUMBER_OF_SUBS; i++)); do
+#    RESULT=$(curl --silent --location --request GET "http://localhost:808$i/memory/nonVol")
+#    echo $RESULT
+#  done
 
   # stop subordinates
   for port in "${SUBORDINATE_LIST[@]}"; do

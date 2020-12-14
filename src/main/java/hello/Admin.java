@@ -79,10 +79,10 @@ public class Admin {
 	}
 
 	public static void changeStatus(String process, String status) {
-	    if(!processStatus.containsKey(process)){
-	        processStatus.put(process,status);
-	        return;
-        }
+		if (!processStatus.containsKey(process)) {
+			processStatus.put(process, status);
+			return;
+		}
 		if (status.equals("forget")) {
 			processStatus.remove(process);
 		} else if (status.contains(process)) {
@@ -166,8 +166,8 @@ public class Admin {
 	public static synchronized void registerVote(String process, String port, ProcessNames vote) {
 		Map<String, ProcessNames> map = processSubordinates.getOrDefault(process, null);
 		if (map != null) {
-			if(vote == ProcessNames.NOVOTE || vote == ProcessNames.YESVOTE){
-				if(!map.containsKey(port)){
+			if (vote == ProcessNames.NOVOTE || vote == ProcessNames.YESVOTE) {
+				if (!map.containsKey(port)) {
 					map.put(port, vote);
 				}
 			} else {

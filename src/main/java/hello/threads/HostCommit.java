@@ -14,30 +14,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class HostCommit extends restThreads{
-    int sleepTime;
+public class HostCommit extends restThreads {
+	int sleepTime;
 
-    private static ThreadName prepared = ThreadName.PREPARE;
-    private static ThreadName commit = ThreadName.COMMIT;
-    private static ThreadName abort = ThreadName.ABORT;
+	private static ThreadName prepared = ThreadName.PREPARE;
+	private static ThreadName commit = ThreadName.COMMIT;
+	private static ThreadName abort = ThreadName.ABORT;
 
-    public HostCommit(String p){
-        super(p);
-        sleepTime = HostCommunicator.getCI().getSleepTimer();
-    }
+	public HostCommit(String p) {
+		super(p);
+		sleepTime = HostCommunicator.getCI().getSleepTimer();
+	}
 
-    public void run(){
-        ServerStatus.serverAvailableElseSleep(prepared, ProcessNames.SENDPREPARE);
-        Admin.resetProcessSubordinates(process);
-        List<String> ports = HostCommunicator.getCI().getSubPorts();
-        for(String port:ports){
-            try {
-                Thread t = new SendPrepareToClient(process, port);
-                t.start();
-            } catch (Exception e){
-            }
-        }
-        try {
+	public void run() {
+		ServerStatus.serverAvailableElseSleep(prepared, ProcessNames.SENDPREPARE);
+		Admin.resetProcessSubordinates(process);
+		List<String> ports = HostCommunicator.getCI().getSubPorts();
+		for (String port : ports) {
+			try {
+				Thread t = new SendPrepareToClient(process, port);
+				t.start();
+			} catch (Exception e) {
+			}
+		}
+		try {
             /*
             ServerStatus.serverAvailableElseSleep(prepared, ProcessNames.GETVOTES);
             Boolean readyToCommit = null;
@@ -81,6 +81,7 @@ public class HostCommit extends restThreads{
                 }
             }
 */
-        } catch (Exception e){}
-    }
+		} catch (Exception e) {
+		}
+	}
 }

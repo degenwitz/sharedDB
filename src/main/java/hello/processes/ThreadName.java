@@ -1,19 +1,19 @@
 package hello.processes;
 
 public enum ThreadName {
-    COMMIT("commit"), PREPARE("prepare"), ABORT("abort");
+	COMMIT("commit"), PREPARE("prepare"), ABORT("abort");
 
-    private final String name;
+	private final String name;
 
-    private ThreadName(String s){
-        name = s;
-    }
+	private ThreadName(String s) {
+		name = s;
+	}
 
-    public boolean equalsName(String s){
-        return name.equals(s);
-    }
+	public boolean equalsName(String s) {
+		return name.equals(s);
+	}
 
-    public String toString(){
-        return name;
-    }
+	public String toString() {
+		return name;
+	}
 }
