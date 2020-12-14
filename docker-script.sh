@@ -77,6 +77,13 @@ for ((j = 1; j <= $1; j++)); do
   done
   curl --location --request POST "http://localhost:8080/process/$j" \
     --data-raw "Lorem ipsumCoord$j"
+
+  # chance of one subordinate to abort
+  CHANCE=$((RANDOM % 2))
+  echo $CHANCE
+  if [[ $CHANCE = 1 ]]; then
+    curl --location --request POST "http://localhost:8081/process/1/abort"
+  fi
     
 
   CRASH_TIME=$((RANDOM % 400 + 100))
