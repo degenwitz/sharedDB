@@ -56,7 +56,6 @@ for ((j = 1; j <= $1; j++)); do
 	\"subPorts\": [${SUB_PORTS%?}],
 	\"sleepTimer\": 10000
 }"
-  curl --location --request POST "http://localhost:8080/process/$j"
   echo -e "\033[0mWaiting for setups...\033[2m"
 
   # setup subordinates
@@ -71,8 +70,14 @@ for ((j = 1; j <= $1; j++)); do
 	\"subPorts\": [],
 	\"sleepTimer\": 10000
 }"
-     curl --location --request POST "http://localhost:808$i/process/$j"
+    sleep 1
+    echo "http://localhost:808$i/process/$j"
+    curl --location --request POST "http://localhost:808$i/process/$j" \
+    --data-raw "Lorem ipsumm $i$j"
   done
+  curl --location --request POST "http://localhost:8080/process/$j" \
+    --data-raw "Lorem ipsumCoord$j"
+    
 
   CRASH_TIME=$((RANDOM % 20 + 20))
   PORT_TO_CRASH=$((RANDOM % ($NUMBER_OF_SUBS + 1)))
