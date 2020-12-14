@@ -44,6 +44,8 @@ for ((j = 1; j <= $1; j++)); do
 
   sleep 10 # wait for all of the containers to start up
 
+  echo -e "\033[0mWaiting for setups...\033[2m"
+
   # post setup for root node
   curl --location --request POST 'http://localhost:8080/client/setup' \
     --header 'Content-Type: application/json' \
@@ -55,7 +57,7 @@ for ((j = 1; j <= $1; j++)); do
 	\"subPorts\": [${SUB_PORTS%?}],
 	\"sleepTimer\": 10000
 }"
-  echo -e "\033[0mWaiting for setups...\033[2m"
+  sleep 10
 
   # setup subordinates
   for ((i = 1; i <= $NUMBER_OF_SUBS; i++)); do
@@ -77,7 +79,7 @@ for ((j = 1; j <= $1; j++)); do
     --data-raw "Lorem ipsumCoord$j"
     
 
-  CRASH_TIME=$((RANDOM % 200 + 100))
+  CRASH_TIME=$((RANDOM % 400 + 100))
   PORT_TO_CRASH=$((RANDOM % ($NUMBER_OF_SUBS + 1)))
 
   sleep 10 # wait for setups to finish
@@ -85,16 +87,16 @@ for ((j = 1; j <= $1; j++)); do
   # start transaction
   curl --location --request POST "http://localhost:8080/commit/$j"
 
-  echo -e "\033[0mWaiting for crash...(${CRASH_TIME}s)\033[2m"
+  echo -e "\033[0mWaiting for crash...($((CRASH_TIME/100))s)\033[2m"
   sleep $((CRASH_TIME/100))
 
   if [ $PORT_TO_CRASH -eq 0 ]; then
     docker stop $ROOT_COORDINATOR
-    echo -e "\033[0mStopped root node after $CRASH_TIME seconds.\033[2m"
+    echo -e "\033[0mStopped root node after $((CRASH_TIME/100)) seconds.\033[2m"
     docker start $ROOT_COORDINATOR
   else
     docker stop ${SUBORDINATE_LIST[$((PORT_TO_CRASH - 1))]}
-    echo -e "\033[0mStopped subordinate node on port 808$PORT_TO_CRASH in $CRASH_TIME seconds.\033[2m"
+    echo -e "\033[0mStopped subordinate node on port 808$PORT_TO_CRASH in $((CRASH_TIME/100)) seconds.\033[2m"
     docker start ${SUBORDINATE_LIST[$((PORT_TO_CRASH - 1))]}
     sleep 5
   fi
@@ -103,28 +105,28 @@ for ((j = 1; j <= $1; j++)); do
   UNCOMMITTED_CORRECTLY=true
   # get uncommitted processes
   echo -e "\033[0mWaiting for reception of uncommitted processes...\033[2m"
-  HOST_UNCOMMITED=$(curl --silent --location --request GET 'http://localhost:8080/processes/uncommited')
+  SUB1_UNCOMMITED=$(curl --silent --location --request GET "http://localhost:8081/processes/uncommited")
   sleep 5
-  echo $HOST_UNCOMMITED
-  for ((i = 1; i <= $NUMBER_OF_SUBS; i++)); do
+  echo $SUB1_UNCOMMITED
+  for ((i = 2; i <= $NUMBER_OF_SUBS; i++)); do
     RESULT=$(curl --silent --location --request GET "http://localhost:808$i/processes/uncommited")
     echo $RESULT
-    UNCOMMITTED_CORRECTLY=$([[ "\"$RESULT\"" == "\"$HOST_UNCOMMITED\"" ]] && echo $UNCOMMITTED_CORRECTLY || echo false)
+    UNCOMMITTED_CORRECTLY=$([[ "\"$RESULT\"" == "\"$SUB1_UNCOMMITED\"" ]] && echo $UNCOMMITTED_CORRECTLY || echo false)
     sleep 5
   done
 
-  sleep 10
+  sleep 5
 
   HANDLED_CORRECTLY=true
   # get handled processes
   echo -e "\033[0mWaiting for reception of handled processes...\033[2m"
-  HOST_HANDLED=$(curl --silent --location --request GET 'http://localhost:8080/processes/handled')
+  SUB1_HANDLED=$(curl --silent --location --request GET 'http://localhost:8081/processes/handled')
   sleep 5
-  echo $HOST_HANDLED
+  echo $SUB1_HANDLED
   for ((i = 1; i <= $NUMBER_OF_SUBS; i++)); do
     RESULT=$(curl --silent --location --request GET "http://localhost:808$i/processes/handled")
     echo $RESULT
-    HANDLED_CORRECTLY=$([[ "\"$RESULT\"" == "\"$HOST_HANDLED\"" ]] && echo $HANDLED_CORRECTLY || echo false)
+    HANDLED_CORRECTLY=$([[ "\"$RESULT\"" == "\"$SUB1_HANDLED\"" ]] && echo $HANDLED_CORRECTLY || echo false)
     sleep 5
   done
 
