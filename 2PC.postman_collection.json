@@ -1,0 +1,240 @@
+{
+	"info": {
+		"_postman_id": "b4697931-2c5a-46a7-be14-17c0f02d6356",
+		"name": "2PC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "setup Subordinate",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"hostPort\": \"8080\",\n\t\"address\": \"http://172.17.0.1\",\n\t\"myPort\": \"8081\",\n\t\"isCoordinator\": \"false\",\n\t\"subPorts\": [],\n\t\"sleepTimer\": 10000\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/client/setup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"client",
+						"setup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create a process",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "Lorem Ipsum"
+				},
+				"url": {
+					"raw": "http://localhost:8082/process/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"process",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "stop container at ...",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"threadToStopAt\":\"commit\",\n    \"processToStopAt\":\"forcewrite\",\n    \"appearancesToStopAt\":\"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/serverstatus/setstop",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"serverstatus",
+						"setstop"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "commit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/commit/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"commit",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "prepare container to abort",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8082/process/1/abort",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"process",
+						"1",
+						"abort"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Non Volatile Memory",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/memory/nonVol",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"memory",
+						"nonVol"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "uncommited processes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8081/processes/uncommited",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"processes",
+						"uncommited"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "handled processes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8082/processes/handled",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"processes",
+						"handled"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
