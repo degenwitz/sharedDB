@@ -1,6 +1,8 @@
 package hello;
 
 import hello.processes.ProcessNames;
+import hello.processes.ServerStatus;
+import hello.processes.ThreadName;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -184,7 +186,11 @@ public class Admin {
 			map.put(port, ProcessNames.ACK);
 
 			if (!map.containsValue(ProcessNames.COMMIT) && !map.containsValue(ProcessNames.ABORT) && !map.containsValue(ProcessNames.YESVOTE) && !map.containsValue(ProcessNames.NOVOTE)) {
+				ServerStatus.serverAvailableElseSleep(ThreadName.COMMIT, ProcessNames.FORCEWRITE);
+				ServerStatus.serverAvailableElseSleep(ThreadName.ABORT, ProcessNames.FORCEWRITE);
 				Admin.forceWrite(process, "end");
+				ServerStatus.serverAvailableElseSleep(ThreadName.COMMIT, ProcessNames.FORGET);
+				ServerStatus.serverAvailableElseSleep(ThreadName.ABORT, ProcessNames.FORGET);
 				Admin.changeStatus(process, "forget");
 			}
 		}

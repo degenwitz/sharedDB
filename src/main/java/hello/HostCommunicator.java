@@ -78,7 +78,6 @@ public class HostCommunicator {
                         = clientInfo.getAddress() + ":" + clientInfo.getHostPort() + "/ack/" + process;
                 ResponseEntity<String> response
                         = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(), String.class);
-                Admin.__forcewrite("Ack on process: " + process, "should have worked: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
                 looping = false;
             } catch (org.springframework.web.client.ResourceAccessException e) {
                 Admin.__forcewrite("Ack on process: " + process, "Coudn't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
@@ -129,11 +128,9 @@ public class HostCommunicator {
     public static List<String> recoveryGetSubStatus(String process){
         List<String> statuses = new ArrayList<>();
         for (String sub : clientInfo.getSubPorts()) {
-            Admin.__forcewrite("recovering process: " + process, "asking sub number: " + sub, Admin.WriteReason.DEBUGGING);
             RestTemplate restTemplate = new RestTemplate();
             String fooResourceUrl
                     = clientInfo.getAddress() + ":" + sub + "/process/" + process + "/recovery/sub/status";
-            Admin.__forcewrite("recovering called: ", fooResourceUrl , Admin.WriteReason.DEBUGGING);
             ResponseEntity<String> response
                     = restTemplate.getForEntity(fooResourceUrl, String.class);
 

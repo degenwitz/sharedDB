@@ -10,17 +10,14 @@ public class RecoveryService extends Thread{
 
     public static void handlePrePrepare(String process){
         String resp = HostCommunicator.recoverySubPrePrepare(process);
-        Admin.__forcewrite("recovering process: " + process,"recived from coord: "+resp,Admin.WriteReason.DEBUGGING);
         if(!resp.equals("nothing")){
             if (resp.equals("commit")){
-                Admin.__forcewrite("recovering process: " + process,"trying to commit again",Admin.WriteReason.DEBUGGING);
                 Thread commit = new Commit(process);
                 commit.start();
             } else if(resp.equals("abort")){
                 Thread abort = new Abort(process);
                 abort.start();
             } else if(resp.equals("prepare")){
-                Admin.__forcewrite("recovering process: " + process,"trying to prepare again",Admin.WriteReason.DEBUGGING);
                 Thread t = new Prepare(process);
                 t.start();
             }
@@ -29,7 +26,6 @@ public class RecoveryService extends Thread{
 
     public static void handleSubPrepare(String process){
         String resp = HostCommunicator.recoverySubPrepare(process);
-        Admin.__forcewrite("recovering process: " + process,"Recovery Sub prepare response Admin: "+resp,Admin.WriteReason.DEBUGGING);
         if (resp.equals("commit")){
             Thread commit = new Commit(process);
             commit.start();
@@ -74,17 +70,13 @@ public class RecoveryService extends Thread{
             for(Map.Entry<String,String> proc: uncommitedProcesses.entrySet()){
                 String process = proc.getKey();
                 if(!writtenMemory.containsKey(process)){
-                    Admin.__forcewrite("recovering process: " + process,"no record",Admin.WriteReason.DEBUGGING);
                     handlePrePrepare(process);
                 }
                 else if(writtenMemory.get(process).contains("commit")){
-                    Admin.__forcewrite("recovering process: " + process,"contains commit",Admin.WriteReason.DEBUGGING);
                     handleSubCommit(process);
                 } else if(writtenMemory.get(process).contains("abort")){
-                    Admin.__forcewrite("recovering process: " + process,"contains abbort",Admin.WriteReason.DEBUGGING);
                     handleSubAbbort(process);
                 } else if(writtenMemory.get(process).contains("prepare")){
-                    Admin.__forcewrite("recovering process: " + process,"contains prepare",Admin.WriteReason.DEBUGGING);
                     handleSubPrepare(process);
                 } else {
                     Admin.__forcewrite("recovering process: " + process,"internal server error",Admin.WriteReason.DEBUGGING);
@@ -103,23 +95,19 @@ public class RecoveryService extends Thread{
                         }
                     }
                     if (status == "end") {
-                        Admin.__forcewrite("recovering process: " + process, "processes already handled", Admin.WriteReason.DEBUGGING);
                         continue;
                     } else if (status == "commit") {
-                        Admin.__forcewrite("recovering process: " + process, "process should be comitted", Admin.WriteReason.DEBUGGING);
                         for (String port : HostCommunicator.getCI().getSubPorts()) {
                             Thread commit = new SendCommitToClient(process, port);
                             commit.start();
                         }
                         Admin.forceWrite(process, "end");
                     } else if (status == "abort") {
-                        Admin.__forcewrite("recovering process: " + process, "process should be aborted", Admin.WriteReason.DEBUGGING);
                         for (String port : HostCommunicator.getCI().getSubPorts()) {
                             Thread commit = new SendAbortToClient(process, port);
                             commit.start();
                         }
                     } else {
-                        Admin.__forcewrite("recovering process: " + process, "coordinator knows nothing", Admin.WriteReason.DEBUGGING);
                         List<String> statuses = HostCommunicator.recoveryGetSubStatus(process);
                         if (statuses.contains("prepare")) {
                             Thread restart = new HostCommit(process);

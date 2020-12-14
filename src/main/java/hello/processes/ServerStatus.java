@@ -59,11 +59,6 @@ public class ServerStatus {
         serverDown = false;
     }
 
-    public static void resetServer(){
-        serverStatus = null;
-        serverDown = false;
-    }
-
     private String threadToStopAt;
     private String processToStopAt;
     private int appearancesToStopAt;

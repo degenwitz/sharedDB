@@ -37,7 +37,6 @@ public class Application {
 
     @PostMapping("/commit/{process}")
     public void commit(@PathVariable("process") String process){
-        Admin.__forcewrite("trying to commit: " + process,"smth",Admin.WriteReason.DEBUGGING);
         if (HostCommunicator.getCI().getIsCoordinator()){
             Thread commitThread = new HostCommit(process);
             commitThread.start();
@@ -90,7 +89,6 @@ public class Application {
                             RestTemplate restTemplate = new RestTemplate();
                             String fooResourceUrl
                                     = HostCommunicator.getCI().getAddress() + ":" + p + "/commit/" + process;
-                            Admin.__forcewrite("trying to send commit for: " + process, "to adress: " + fooResourceUrl, Admin.WriteReason.DEBUGGING);
                             ResponseEntity<String> r = restTemplate.postForEntity(fooResourceUrl, null, String.class);
                             map.put(p, ProcessNames.COMMIT);
                             looping = false;
@@ -152,7 +150,6 @@ public class Application {
                         RestTemplate restTemplate = new RestTemplate();
                         String fooResourceUrl
                                 = HostCommunicator.getCI().getAddress() + ":" + p + "/commit/" + process;
-                        Admin.__forcewrite("trying to send commit for: " + process, "to adress: " + fooResourceUrl, Admin.WriteReason.DEBUGGING);
                         ResponseEntity<String> r = restTemplate.postForEntity(fooResourceUrl, null, String.class);
                         map.put(p, ProcessNames.COMMIT);
                         looping = false;
@@ -273,18 +270,6 @@ public class Application {
     @PostMapping("/serverstatus/setstop")
     public void serverStop(@RequestBody ServerStatus serverStatus){
         ServerStatus.setup(serverStatus);
-    }
-
-    @PostMapping("/serverstatus/reset")
-    public void resetServer(){
-        ServerStatus.resetServer();
-    }
-
-    //just for testing
-    @PostMapping("/acktest/{process}")
-    public void ackTest(@PathVariable("process") String process){
-        Admin.changeStatus(process, "ackWorked");
-        return;
     }
 
     //Monitoring services
