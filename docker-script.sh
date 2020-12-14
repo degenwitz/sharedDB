@@ -70,7 +70,6 @@ for ((j = 1; j <= $1; j++)); do
 	\"subPorts\": [],
 	\"sleepTimer\": 10000
 }"
-    sleep 1
     echo "http://localhost:808$i/process/$j"
     curl --location --request POST "http://localhost:808$i/process/$j" \
     --data-raw "Lorem ipsumm $i$j"
