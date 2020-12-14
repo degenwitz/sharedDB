@@ -56,7 +56,7 @@ for ((j = 1; j <= $1; j++)); do
 	\"subPorts\": [${SUB_PORTS%?}],
 	\"sleepTimer\": 10000
 }"
-
+  curl --location --request POST "http://localhost:8080/process/$j"
   echo -e "\033[0mWaiting for setups...\033[2m"
 
   # setup subordinates
@@ -71,6 +71,7 @@ for ((j = 1; j <= $1; j++)); do
 	\"subPorts\": [],
 	\"sleepTimer\": 10000
 }"
+     curl --location --request POST "http://localhost:808$i/process/$j"
   done
 
   CRASH_TIME=$((RANDOM % 20 + 45))
@@ -79,7 +80,7 @@ for ((j = 1; j <= $1; j++)); do
   sleep 10 # wait for setups to finish
 
   # start transaction
-  curl --location --request POST "http://localhost:8080/commit/$i"
+  curl --location --request POST "http://localhost:8080/commit/$j"
 
   echo -e "\033[0mWaiting for crash...(${CRASH_TIME}s)\033[2m"
   sleep $CRASH_TIME
