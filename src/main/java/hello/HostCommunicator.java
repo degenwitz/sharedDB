@@ -38,7 +38,7 @@ public class HostCommunicator {
                         = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(), String.class);
                 looping = false;
             } catch (org.springframework.web.client.ResourceAccessException e) {
-                Admin.__forcewrite("YesVote on process: " + process, "Coudn't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
+                Admin.__forcewrite("YesVote on process: " + process, "Couldn't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException interruptedException) {
@@ -59,7 +59,7 @@ public class HostCommunicator {
                         = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(),  String.class);
                 looping = false;
                 } catch (org.springframework.web.client.ResourceAccessException e) {
-                Admin.__forcewrite("NoVote on process: " + process, "Coudn't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
+                Admin.__forcewrite("NoVote on process: " + process, "Couldn't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException interruptedException) {
@@ -80,7 +80,7 @@ public class HostCommunicator {
                         = restTemplate.postForEntity(fooResourceUrl, clientInfo.getMyPort(), String.class);
                 looping = false;
             } catch (org.springframework.web.client.ResourceAccessException e) {
-                Admin.__forcewrite("Ack on process: " + process, "Coudn't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
+                Admin.__forcewrite("Ack on process: " + process, "Couln't reach: " + clientInfo.getHostPort(), Admin.WriteReason.DEBUGGING);
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException interruptedException) {

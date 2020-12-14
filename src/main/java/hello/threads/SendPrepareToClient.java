@@ -22,7 +22,7 @@ public class SendPrepareToClient extends restThreads{
                 ResponseEntity<String> response
                         = restTemplate.postForEntity(fooResourceUrl, null, String.class);
         } catch (org.springframework.web.client.ResourceAccessException e){
-            Admin.__forcewrite("commiting process: " + process,"Coudn't reach: "+port,Admin.WriteReason.DEBUGGING);
+            Admin.__forcewrite("committing process: " + process,"Couldn't reach: "+port,Admin.WriteReason.DEBUGGING);
         }
     }
 }
